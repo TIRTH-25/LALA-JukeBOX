@@ -183,7 +183,7 @@ return (
           ROW 2 MOBILE
           CATEGORIES
       ========================================= */}
-      <div className="flex justify-center pt-10 sm:shrink-0 sm:pt-3">
+      <div className="flex justify-center pt-5 sm:shrink-0 sm:pt-3">
 
         <nav
           className="
