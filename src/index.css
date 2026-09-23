@@ -1,0 +1,140 @@
+@import "tailwindcss";
+
+/* =========================================
+   LALA's JUKEBOX DESIGN SYSTEM
+   ========================================= */
+
+:root {
+  --madder: #9e2b25;
+  --madder-deep: #7a1d1e;
+
+  --indigo: #1b3a5c;
+
+  --turmeric: #e2a32d;
+  --gold: #c9a227;
+
+  --malachite: #1f6b4f;
+
+  --ivory: #f2e8d5;
+  --ivory-warm: #eaddc4;
+
+  --lamp: #14100e;
+  --ink: var(--lamp);
+
+  --ink-dim: rgba(20, 16, 14, 0.62);
+  --ink-faint: rgba(20, 16, 14, 0.42);
+
+  --patch: #f6efdf;
+
+  --rule: rgba(122, 29, 30, 0.28);
+  --rule-soft: rgba(20, 16, 14, 0.14);
+
+  --shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5),
+    0 10px 30px -14px rgba(60, 30, 12, 0.5);
+
+  --beat-off: rgba(20, 16, 14, 0.18);
+
+  --dock-max: 700px;
+
+  --frame: 46px;
+  --bottom-h: 118px;
+
+  --gu:
+    "Anek",
+    "Noto Sans Gujarati",
+    sans-serif;
+
+  --sys:
+    "Anek",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+
+/* =========================================
+   TAILWIND THEME
+   ========================================= */
+
+@theme {
+  --color-madder: #9e2b25;
+  --color-madder-deep: #7a1d1e;
+
+  --color-indigo: #1b3a5c;
+
+  --color-turmeric: #e2a32d;
+  --color-gold: #c9a227;
+
+  --color-malachite: #1f6b4f;
+
+  --color-ivory: #f2e8d5;
+  --color-ivory-warm: #eaddc4;
+
+  --color-lamp: #14100e;
+  --color-patch: #f6efdf;
+}
+
+
+/* =========================================
+   RESET
+   ========================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--ivory);
+  color: var(--ink);
+
+  font-family: var(--sys);
+
+  overflow: hidden;
+
+  -webkit-font-smoothing: antialiased;
+
+  overscroll-behavior: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+
+/* =========================================
+   FULL SCREEN GARBA CANVAS
+   ========================================= */
+
+#floor {
+  position: fixed;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  touch-action: none;
+
+  z-index: 0;
+}
+
+/* Hide scrollbar but keep scrolling */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
