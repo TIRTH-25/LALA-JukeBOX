@@ -1548,17 +1548,16 @@ const soundcheckTracks = [
   {
     id: "soundcheck-1",
     category: "Soundcheck",
-    title: "Soundcheck",
-    artist: "Soundcheck",
-    youtubeId: "vgYjF-K22iQ",
-  },
-
-  {
-    id: "soundcheck-2",
-    category: "Soundcheck",
     title: "One Time (Extended Mix)",
     artist: "DJ",
     youtubeId: "AHQBIph2XOA",
+  },
+  {
+    id: "soundcheck-2",
+    category: "Soundcheck",
+    title: "Ekadantaya Vakratundaya SOUNDCHAKE",
+    artist: "DJ SM",
+    youtubeId: "vgYjF-K22iQ",
   },
 ];
 
