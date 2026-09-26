@@ -7,7 +7,11 @@ const categories = [
   { id: "Soundcheck", label: "સાઉન્ડચેક" },
 ];
 
-function Header({ activeCategory, setActiveCategory, setCurrentSongIndex }) {
+function Header({
+  activeCategory,
+  setActiveCategory,
+  setCurrentSongIndex,
+}) {
   const [time, setTime] = useState(new Date());
 
   // =========================================
@@ -63,30 +67,13 @@ function Header({ activeCategory, setActiveCategory, setCurrentSongIndex }) {
       wrapperBorder: "rgba(225, 6, 0, 0.35)",
     },
 
-    // =========================================
-    // KATHIYAWADI RAAS
-    // =========================================
-
     "kathiyawadi-raas": {
-      // Main folk pink from reference
       text: "#E6007E",
-
-      // Warm cream / paper-like logo
       logo: "#F4E8D0",
-
-      // Muted earthy tone
       muted: "#C8AFA0",
-
-      // Active button - Rani pink
       activeBg: "#E6007E",
-
-      // Dark wine / maroon text on active button
       activeText: "#FFF7EA",
-
-      // Deep Kathiyawadi maroon wrapper
       wrapperBg: "rgba(92, 34, 42, 0.58)",
-
-      // Pink/gold folk-style border
       wrapperBorder: "rgba(230, 0, 126, 0.45)",
     },
   };
@@ -221,15 +208,26 @@ function Header({ activeCategory, setActiveCategory, setCurrentSongIndex }) {
 
         {/* =========================================
             ROW 2 MOBILE
-            CATEGORIES
+            HORIZONTAL SCROLL CATEGORIES
         ========================================= */}
 
-        <div className="flex justify-center pt-5 sm:shrink-0 sm:pt-3">
+        <div
+          className="
+            flex
+            justify-center
+            pt-5
+
+            sm:shrink-0
+            sm:pt-3
+          "
+        >
 
           <nav
             className="
               flex
+              max-w-full
               items-center
+              overflow-x-auto
               rounded-full
               border
               p-1
@@ -237,11 +235,16 @@ function Header({ activeCategory, setActiveCategory, setCurrentSongIndex }) {
               transition-all
               duration-300
 
+              sm:overflow-visible
               sm:p-1.5
+
+              scrollbar-none
             "
             style={{
               backgroundColor: theme.wrapperBg,
               borderColor: theme.wrapperBorder,
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
             }}
           >
 
@@ -258,10 +261,11 @@ function Header({ activeCategory, setActiveCategory, setCurrentSongIndex }) {
                   }
                   className="
                     shrink-0
+                    whitespace-nowrap
                     rounded-full
-                    px-3
+                    px-2.5
                     py-1
-                    text-[15px]
+                    text-[12px]
                     font-medium
                     transition-all
                     duration-300
