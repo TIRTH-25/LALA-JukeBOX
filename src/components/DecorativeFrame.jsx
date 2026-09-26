@@ -1,24 +1,30 @@
 function DecorativeFrame({ activeCategory }) {
   const themes = {
-  Garba: {
-    primary: "#fbbf24",       // Neon amber
-    secondary: "#1a0604",     // Near-black burgundy
-    light: "#4c1d95",         // Dark slate red (for cards)
-    strip: "rgba(251, 191, 36, 0.15)",
-  },
-  DJ: {
-    primary: "#c084fc",       // Neon violet
-    secondary: "#0f0518",     // Pitch black purple
-    light: "#2e1065",         // Deep purple (for cards)
-    strip: "rgba(192, 132, 252, 0.15)",
-  },
-Soundcheck: {
-  primary: "#E10600",
-  secondary: "#000000",
-  light: "#151515",
-  strip: "rgba(225, 6, 0, 0.14)",
-},
-};
+    Garba: {
+      primary: "#fbbf24",       // Neon amber
+      secondary: "#1a0604",     // Near-black burgundy
+      light: "#4c1d95",         // Dark slate red (for cards)
+      strip: "rgba(251, 191, 36, 0.15)",
+    },
+    DJ: {
+      primary: "#c084fc",       // Neon violet
+      secondary: "#0f0518",     // Pitch black purple
+      light: "#2e1065",         // Deep purple (for cards)
+      strip: "rgba(192, 132, 252, 0.15)",
+    },
+    Soundcheck: {
+      primary: "#E10600",
+      secondary: "#000000",
+      light: "#151515",
+      strip: "rgba(225, 6, 0, 0.14)",
+    },
+    "kathiyawadi-raas": {
+      primary: "#E6007E",       // Rani Pink borders
+      secondary: "#0d1b2a",     // Midnight Indigo background
+      light: "#3b0625",         // Mustard yellow for dots/diamonds
+      strip: "rgba(230, 0, 126, 0.15)", // Translucent pink strip
+    },
+  };
 
   const theme = themes[activeCategory] || themes.Garba;
 

@@ -43,15 +43,25 @@ function PlayerDock({
 
     Soundcheck: {
       panel: "#000000",
-      border: "#FFFFFF",
+      border: "#E10600",
       accent: "#E10600",
       title: "#FFFFFF",
       muted: "#A3A3A3",
       secondary: "#151515",
     },
+
+    "kathiyawadi-raas": {
+      panel: "#0d1b2a",
+      border: "#E6007E",
+      accent: "#E6007E",
+      title: "#F4E8D0",
+      muted: "#C8AFA0",
+      secondary: "#8B3A3A",
+    },
   };
 
-  const theme = themes[activeCategory] || themes.Garba;
+  const theme =
+    themes[activeCategory] || themes.Garba;
 
   // =========================================
   // CATEGORY LABELS
@@ -61,10 +71,20 @@ function PlayerDock({
     Garba: "ગરબા",
     DJ: "DJ",
     Soundcheck: "સાઉન્ડચેક",
+    "kathiyawadi-raas": "કાઠિયાવાડી-રાસ",
   };
 
   const categoryLabel =
     categoryLabels[activeCategory] || "ગરબા";
+
+  // =========================================
+  // ACTIVE CATEGORY SONGS
+  // =========================================
+
+  const activeCategorySongs = playlistData.filter(
+    (song) =>
+      song.category === activeCategory
+  );
 
   // =========================================
   // YOUTUBE URL
@@ -79,20 +99,31 @@ function PlayerDock({
   // =========================================
 
   const formatTime = (seconds) => {
-    if (!Number.isFinite(seconds) || seconds < 0) {
+    if (
+      !Number.isFinite(seconds) ||
+      seconds < 0
+    ) {
       return "0:00";
     }
 
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
+    const minutes = Math.floor(
+      seconds / 60
+    );
+
+    const remainingSeconds = Math.floor(
+      seconds % 60
+    );
 
     return `${minutes}:${String(
       remainingSeconds
     ).padStart(2, "0")}`;
   };
 
-  const currentTimeText = formatTime(currentTime);
-  const durationText = formatTime(duration);
+  const currentTimeText =
+    formatTime(currentTime);
+
+  const durationText =
+    formatTime(duration);
 
   // =========================================
   // TIMELINE
@@ -131,7 +162,9 @@ function PlayerDock({
     onSeek(newTime);
   };
 
-  const handleTimelinePointerDown = (event) => {
+  const handleTimelinePointerDown = (
+    event
+  ) => {
     if (!duration || !onSeek) return;
 
     event.currentTarget.setPointerCapture(
@@ -141,7 +174,9 @@ function PlayerDock({
     seekFromPointer(event);
   };
 
-  const handleTimelinePointerMove = (event) => {
+  const handleTimelinePointerMove = (
+    event
+  ) => {
     if (!duration || !onSeek) return;
 
     if (
@@ -180,23 +215,58 @@ function PlayerDock({
   };
 
   // =========================================
-  // CATEGORY SONGS
+  // NEXT SONG
+  // ONLY WITHIN ACTIVE CATEGORY
   // =========================================
 
-  const categories = [
-    {
-      key: "Garba",
-      label: "ગરબા",
-    },
-    {
-      key: "DJ",
-      label: "DJ",
-    },
-    {
-      key: "Soundcheck",
-      label: "સાઉન્ડચેક",
-    },
-  ];
+  // const handleCategoryNext = () => {
+  //   if (!activeCategorySongs.length) return;
+
+  //   const currentIndex =
+  //     activeCategorySongs.findIndex(
+  //       (song) =>
+  //         song.youtubeId ===
+  //         currentSong.youtubeId
+  //     );
+
+  //   const nextIndex =
+  //     currentIndex === -1
+  //       ? 0
+  //       : (currentIndex + 1) %
+  //         activeCategorySongs.length;
+
+  //   handleSongSelect(
+  //     activeCategorySongs[nextIndex]
+  //   );
+  // };
+
+  // =========================================
+  // PREVIOUS SONG
+  // ONLY WITHIN ACTIVE CATEGORY
+  // =========================================
+
+  // const handleCategoryPrevious = () => {
+  //   if (!activeCategorySongs.length) return;
+
+  //   const currentIndex =
+  //     activeCategorySongs.findIndex(
+  //       (song) =>
+  //         song.youtubeId ===
+  //         currentSong.youtubeId
+  //     );
+
+  //   const previousIndex =
+  //     currentIndex === -1
+  //       ? 0
+  //       : (currentIndex -
+  //           1 +
+  //           activeCategorySongs.length) %
+  //         activeCategorySongs.length;
+
+  //   handleSongSelect(
+  //     activeCategorySongs[previousIndex]
+  //   );
+  // };
 
   // =========================================
   // RENDER
@@ -296,6 +366,7 @@ function PlayerDock({
               }}
             >
               <div>
+
                 <div
                   className="
                     text-[11px]
@@ -321,8 +392,13 @@ function PlayerDock({
                     color: theme.muted,
                   }}
                 >
-                  ALL SONGS
+                  {categoryLabel} •{" "}
+                  {activeCategorySongs.length}{" "}
+                  {activeCategorySongs.length === 1
+                    ? "SONG"
+                    : "SONGS"}
                 </div>
+
               </div>
 
               <button
@@ -349,229 +425,184 @@ function PlayerDock({
               >
                 ×
               </button>
+
             </div>
 
             {/* =================================
-                SONG LIST
+                ACTIVE CATEGORY SONG LIST
             ================================= */}
 
             <div className="hide-scrollbar max-h-[320px] overflow-y-auto">
 
-              {categories.map((category) => {
-                const songs =
-                  playlistData.filter(
-                    (song) =>
-                      song.category ===
-                      category.key
-                  );
+              {activeCategorySongs.length ===
+              0 ? (
+                <div
+                  className="
+                    px-4
+                    py-8
+                    text-center
+                    text-[10px]
+                    uppercase
+                    tracking-[0.12em]
+                  "
+                  style={{
+                    color: theme.muted,
+                  }}
+                >
+                  No songs in this category
+                </div>
+              ) : (
+                activeCategorySongs.map(
+                  (song) => {
+                    const isCurrentSong =
+                      currentSong?.youtubeId ===
+                      song.youtubeId;
 
-                if (songs.length === 0) {
-                  return null;
-                }
-
-                const categoryTheme =
-                  themes[category.key];
-
-                return (
-                  <div key={category.key}>
-
-                    {/* CATEGORY HEADER */}
-
-                    <div
-                      className="
-                        sticky
-                        top-0
-                        z-10
-                        flex
-                        items-center
-                        justify-between
-                        px-4
-                        py-2
-                        text-[9px]
-                        font-semibold
-                        uppercase
-                        tracking-[0.15em]
-                      "
-                      style={{
-                        backgroundColor:
-                          categoryTheme.panel,
-                        color:
-                          categoryTheme.accent,
-                        borderBottom:
-                          `1px solid ${categoryTheme.border}`,
-                      }}
-                    >
-                      <span>
-                        {category.label}
-                      </span>
-
-                      <span
-                        className="text-[8px]"
+                    return (
+                      <button
+                        key={song.youtubeId}
+                        onClick={() =>
+                          handleSongSelect(song)
+                        }
+                        className="
+                          flex
+                          w-full
+                          items-center
+                          gap-3
+                          border-b
+                          px-4
+                          py-2.5
+                          text-left
+                          transition
+                          hover:bg-white/5
+                        "
                         style={{
-                          color:
-                            categoryTheme.muted,
+                          backgroundColor:
+                            isCurrentSong
+                              ? `${theme.accent}18`
+                              : "transparent",
+
+                          borderColor:
+                            "rgba(255,255,255,0.05)",
                         }}
                       >
-                        {songs.length}{" "}
-                        {songs.length === 1
-                          ? "SONG"
-                          : "SONGS"}
-                      </span>
-                    </div>
 
-                    {/* SONGS */}
+                        {/* THUMBNAIL */}
 
-                    {songs.map((song) => {
-                      const isCurrentSong =
-                        currentSong?.youtubeId ===
-                          song.youtubeId &&
-                        activeCategory ===
-                          category.key;
-
-                      return (
-                        <button
-                          key={song.youtubeId}
-                          onClick={() =>
-                            handleSongSelect(song)
-                          }
+                        <div
                           className="
-                            flex
-                            w-full
-                            items-center
-                            gap-3
-                            border-b
-                            px-4
-                            py-2.5
-                            text-left
-                            transition
-                            hover:bg-white/5
+                            h-10
+                            w-10
+                            shrink-0
+                            overflow-hidden
+                            rounded-md
                           "
                           style={{
-                            backgroundColor:
-                              isCurrentSong
-                                ? `${categoryTheme.accent}18`
-                                : "transparent",
-                            borderColor:
-                              "rgba(255,255,255,0.05)",
+                            border:
+                              `1px solid ${theme.border}`,
                           }}
                         >
-
-                          {/* THUMBNAIL */}
-
-                          <div
-                            className="
-                              h-10
-                              w-10
-                              shrink-0
-                              overflow-hidden
-                              rounded-md
-                            "
-                            style={{
-                              border:
-                                `1px solid ${categoryTheme.border}`,
-                            }}
-                          >
-                            {song.youtubeId ? (
-                              <img
-                                src={`https://img.youtube.com/vi/${song.youtubeId}/mqdefault.jpg`}
-                                alt=""
-                                className="
-                                  h-full
-                                  w-full
-                                  object-cover
-                                "
-                              />
-                            ) : (
-                              <div
-                                className="
-                                  flex
-                                  h-full
-                                  w-full
-                                  items-center
-                                  justify-center
-                                "
-                                style={{
-                                  backgroundColor:
-                                    categoryTheme.secondary,
-                                  color:
-                                    categoryTheme.accent,
-                                }}
-                              >
-                                ♪
-                              </div>
-                            )}
-                          </div>
-
-                          {/* SONG INFO */}
-
-                          <div className="min-w-0 flex-1">
-                            <div
+                          {song.youtubeId ? (
+                            <img
+                              src={`https://img.youtube.com/vi/${song.youtubeId}/mqdefault.jpg`}
+                              alt=""
                               className="
-                                truncate
-                                text-[11px]
-                                font-semibold
-                                sm:text-[12px]
+                                h-full
+                                w-full
+                                object-cover
                               "
-                              style={{
-                                color:
-                                  isCurrentSong
-                                    ? categoryTheme.accent
-                                    : categoryTheme.title,
-                              }}
-                            >
-                              {song.title}
-                            </div>
-
-                            <div
-                              className="
-                                mt-0.5
-                                truncate
-                                text-[9px]
-                                sm:text-[10px]
-                              "
-                              style={{
-                                color:
-                                  categoryTheme.muted,
-                              }}
-                            >
-                              {song.artist}
-                            </div>
-                          </div>
-
-                          {/* CURRENT SONG */}
-
-                          {isCurrentSong && (
+                            />
+                          ) : (
                             <div
                               className="
                                 flex
-                                shrink-0
+                                h-full
+                                w-full
                                 items-center
-                                gap-1
-                                text-[9px]
+                                justify-center
                               "
                               style={{
+                                backgroundColor:
+                                  theme.secondary,
                                 color:
-                                  categoryTheme.accent,
+                                  theme.accent,
                               }}
                             >
-                              <span>
-                                {isPlaying
-                                  ? "▶"
-                                  : "Ⅱ"}
-                              </span>
-
-                              <span className="hidden sm:inline">
-                                NOW
-                              </span>
+                              ♪
                             </div>
                           )}
+                        </div>
 
-                        </button>
-                      );
-                    })}
-                  </div>
-                );
-              })}
+                        {/* SONG INFO */}
+
+                        <div className="min-w-0 flex-1">
+
+                          <div
+                            className="
+                              truncate
+                              text-[11px]
+                              font-semibold
+                              sm:text-[12px]
+                            "
+                            style={{
+                              color:
+                                isCurrentSong
+                                  ? theme.accent
+                                  : theme.title,
+                            }}
+                          >
+                            {song.title}
+                          </div>
+
+                          <div
+                            className="
+                              mt-0.5
+                              truncate
+                              text-[9px]
+                              sm:text-[10px]
+                            "
+                            style={{
+                              color: theme.muted,
+                            }}
+                          >
+                            {song.artist}
+                          </div>
+
+                        </div>
+
+                        {/* CURRENT SONG */}
+
+                        {isCurrentSong && (
+                          <div
+                            className="
+                              flex
+                              shrink-0
+                              items-center
+                              gap-1
+                              text-[9px]
+                            "
+                            style={{
+                              color: theme.accent,
+                            }}
+                          >
+                            <span>
+                              {isPlaying
+                                ? "▶"
+                                : "Ⅱ"}
+                            </span>
+
+                            <span className="hidden sm:inline">
+                              NOW
+                            </span>
+                          </div>
+                        )}
+
+                      </button>
+                    );
+                  }
+                )
+              )}
+
             </div>
           </div>
         )}
@@ -646,6 +677,7 @@ function PlayerDock({
             {/* TITLE */}
 
             <div className="min-w-0 flex-1">
+
               <div
                 className="
                   truncate
@@ -674,6 +706,7 @@ function PlayerDock({
               >
                 {currentSong.artist}
               </div>
+
             </div>
 
             {/* TIME */}
@@ -728,6 +761,7 @@ function PlayerDock({
               aria-valuemax={duration || 0}
               aria-valuenow={currentTime}
             >
+
               <div
                 className="
                   absolute
@@ -761,6 +795,7 @@ function PlayerDock({
                     `0 0 8px ${theme.accent}`,
                 }}
               />
+
             </div>
 
             <div
@@ -831,9 +866,7 @@ function PlayerDock({
                   theme.panel,
               }}
             >
-              {isPlaying
-                ? "Ⅱ"
-                : "▶"}
+              {isPlaying ? "Ⅱ" : "▶"}
             </button>
 
             {/* PREVIOUS */}
@@ -1084,6 +1117,7 @@ function PlayerDock({
           </span>
         </a>
       )}
+
     </div>
   );
 }

@@ -43,12 +43,23 @@ function FloorCanvas({ isPlaying, activeCategory }) {
       Soundcheck: {
         background: "#000000",
         primary: "#E10600",
-        secondary: "#151515",
+        secondary: "#6A0400",
         dancer: "#F5F5F5",
         dancerAccent: "#E10600",
         lamp: "#FFFFFF",
         glow: "rgba(225, 6, 0, 0.28)",
         outerDot: "#E10600",
+      },
+
+      "kathiyawadi-raas": {
+        background: "#0d1b2a",
+        primary: "#E6007E",
+        secondary: "#7A2638",
+        dancer: "#F4E8D0",
+        dancerAccent: "#E8A317",
+        lamp: "#E6007E",
+        glow: "rgba(230, 0, 126, 0.32)",
+        outerDot: "#E8A317",
       },
     };
 
@@ -62,15 +73,12 @@ function FloorCanvas({ isPlaying, activeCategory }) {
       const dpr = window.devicePixelRatio || 1;
 
       const width = window.innerWidth;
-
       const height = window.innerHeight;
 
       canvas.style.width = `${width}px`;
-
       canvas.style.height = `${height}px`;
 
       canvas.width = Math.round(width * dpr);
-
       canvas.height = Math.round(height * dpr);
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -82,7 +90,6 @@ function FloorCanvas({ isPlaying, activeCategory }) {
 
     const draw = () => {
       const width = window.innerWidth;
-
       const height = window.innerHeight;
 
       const isMobile = width < 640;
@@ -94,8 +101,20 @@ function FloorCanvas({ isPlaying, activeCategory }) {
       // =======================================
 
       ctx.fillStyle = theme.background;
-
       ctx.fillRect(0, 0, width, height);
+
+      // =======================================
+      // KATHIYAWADI BACKGROUND DETAIL
+      // =======================================
+
+      if (activeCategory === "kathiyawadi-raas") {
+        drawKathiyawadiPattern(
+          ctx,
+          width,
+          height,
+          theme
+        );
+      }
 
       // =======================================
       // CENTER
@@ -103,21 +122,9 @@ function FloorCanvas({ isPlaying, activeCategory }) {
 
       const centerX = width / 2;
 
-      /*
-       * MOBILE
-       * ---------------------------------------
-       * Row 1 = Header + Clock
-       * Row 2 = Categories
-       * Row 3 = Dancer Circle
-       * Row 4 = Player Dock
-       * Row 5 = Footer
-       *
-       * The circle is intentionally positioned
-       * in the upper-middle area so the player
-       * does not completely cover it.
-       */
-
-      const centerY = isMobile ? height * 0.42 : height * 0.43;
+      const centerY = isMobile
+        ? height * 0.42
+        : height * 0.43;
 
       // =======================================
       // RESPONSIVE RADIUS
@@ -133,7 +140,13 @@ function FloorCanvas({ isPlaying, activeCategory }) {
 
       ctx.beginPath();
 
-      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      ctx.arc(
+        centerX,
+        centerY,
+        radius,
+        0,
+        Math.PI * 2
+      );
 
       ctx.strokeStyle = theme.primary;
 
@@ -156,17 +169,45 @@ function FloorCanvas({ isPlaying, activeCategory }) {
       const dotRadius = isMobile ? 2.3 : 3;
 
       for (let i = 0; i < dotCount; i++) {
-        const angle = (Math.PI * 2 * i) / dotCount;
+        const angle =
+          (Math.PI * 2 * i) / dotCount;
 
-        const x = centerX + Math.cos(angle) * (radius + dotDistance);
+        const x =
+          centerX +
+          Math.cos(angle) *
+            (radius + dotDistance);
 
-        const y = centerY + Math.sin(angle) * (radius + dotDistance);
+        const y =
+          centerY +
+          Math.sin(angle) *
+            (radius + dotDistance);
 
         ctx.beginPath();
 
-        ctx.arc(x, y, dotRadius, 0, Math.PI * 2);
+        ctx.arc(
+          x,
+          y,
+          dotRadius,
+          0,
+          Math.PI * 2
+        );
 
-        if (i % 3 === 0) {
+        // =====================================
+        // KATHIYAWADI MULTI-COLOR DOTS
+        // =====================================
+
+        if (activeCategory === "kathiyawadi-raas") {
+          const folkColors = [
+            "#E6007E",
+            "#E8A317",
+            "#008C95",
+            "#3A9D5D",
+            "#F4E8D0",
+          ];
+
+          ctx.fillStyle =
+            folkColors[i % folkColors.length];
+        } else if (i % 3 === 0) {
           ctx.fillStyle = theme.primary;
         } else if (i % 3 === 1) {
           ctx.fillStyle = theme.secondary;
@@ -187,7 +228,13 @@ function FloorCanvas({ isPlaying, activeCategory }) {
 
       ctx.beginPath();
 
-      ctx.arc(centerX, centerY, radius * 0.72, 0, Math.PI * 2);
+      ctx.arc(
+        centerX,
+        centerY,
+        radius * 0.72,
+        0,
+        Math.PI * 2
+      );
 
       ctx.strokeStyle = theme.secondary;
 
@@ -206,41 +253,78 @@ function FloorCanvas({ isPlaying, activeCategory }) {
       const dancerCount = isMobile ? 20 : 24;
 
       for (let i = 0; i < dancerCount; i++) {
-        const angle = (Math.PI * 2 * i) / dancerCount + rotation;
+        const angle =
+          (Math.PI * 2 * i) / dancerCount +
+          rotation;
 
-        const x = centerX + Math.cos(angle) * radius * 0.72;
+        const x =
+          centerX +
+          Math.cos(angle) *
+            radius *
+            0.72;
 
-        const y = centerY + Math.sin(angle) * radius * 0.72;
+        const y =
+          centerY +
+          Math.sin(angle) *
+            radius *
+            0.72;
 
-        drawDancer(ctx, x, y, angle, theme, isMobile);
+        drawDancer(
+          ctx,
+          x,
+          y,
+          angle,
+          theme,
+          isMobile,
+          activeCategory,
+          i
+        );
       }
 
       // =======================================
       // CENTER LAMP
       // =======================================
 
-      drawLamp(ctx, centerX, centerY, theme, isMobile);
+      drawLamp(
+        ctx,
+        centerX,
+        centerY,
+        theme,
+        isMobile,
+        activeCategory
+      );
 
       // =======================================
       // ANIMATION
       // =======================================
 
       if (isPlaying) {
-        rotation += isMobile ? 0.0012 : 0.0015;
+        rotation += isMobile
+          ? 0.0012
+          : 0.0015;
       }
 
-      animationFrame = requestAnimationFrame(draw);
+      animationFrame =
+        requestAnimationFrame(draw);
     };
 
     resize();
     draw();
 
-    window.addEventListener("resize", resize);
+    window.addEventListener(
+      "resize",
+      resize
+    );
 
     return () => {
-      window.removeEventListener("resize", resize);
+      window.removeEventListener(
+        "resize",
+        resize
+      );
 
-      cancelAnimationFrame(animationFrame);
+      cancelAnimationFrame(
+        animationFrame
+      );
     };
   }, [isPlaying, activeCategory]);
 
@@ -261,23 +345,130 @@ function FloorCanvas({ isPlaying, activeCategory }) {
 }
 
 // =============================================
+// KATHIYAWADI BACKGROUND PATTERN
+// =============================================
+
+function drawKathiyawadiPattern(
+  ctx,
+  width,
+  height,
+  theme
+) {
+  ctx.save();
+
+  // Very subtle paper/dot texture
+  ctx.globalAlpha = 0.12;
+
+  const spacing = 12;
+
+  for (
+    let x = 0;
+    x < width;
+    x += spacing
+  ) {
+    for (
+      let y = 0;
+      y < height;
+      y += spacing
+    ) {
+      const diagonal =
+        Math.floor(x / spacing) +
+        Math.floor(y / spacing);
+
+      ctx.beginPath();
+
+      ctx.arc(
+        x,
+        y,
+        0.8,
+        0,
+        Math.PI * 2
+      );
+
+      if (diagonal % 4 === 0) {
+        ctx.fillStyle = theme.primary;
+      } else if (diagonal % 4 === 1) {
+        ctx.fillStyle = theme.dancerAccent;
+      } else if (diagonal % 4 === 2) {
+        ctx.fillStyle = "#008C95";
+      } else {
+        ctx.fillStyle = theme.dancer;
+      }
+
+      ctx.fill();
+    }
+  }
+
+  ctx.restore();
+}
+
+// =============================================
 // DANCER
 // =============================================
 
-function drawDancer(ctx, x, y, angle, theme, isMobile) {
+function drawDancer(
+  ctx,
+  x,
+  y,
+  angle,
+  theme,
+  isMobile,
+  activeCategory,
+  index
+) {
   ctx.save();
 
   ctx.translate(x, y);
 
-  ctx.rotate(angle + Math.PI / 2);
+  ctx.rotate(
+    angle + Math.PI / 2
+  );
 
   // =========================================
   // SCALE
   // =========================================
 
-  const scale = isMobile ? 0.78 : 1;
+  const scale = isMobile
+    ? 0.78
+    : 1;
 
   ctx.scale(scale, scale);
+
+  // =========================================
+  // KATHIYAWADI DRESS COLORS
+  // =========================================
+
+  let dressColor = theme.secondary;
+  let accentColor = theme.dancerAccent;
+
+  if (
+    activeCategory ===
+    "kathiyawadi-raas"
+  ) {
+    const dressColors = [
+      "#E6007E",
+      "#008C95",
+      "#3A9D5D",
+      "#E8A317",
+      "#7A2638",
+    ];
+
+    dressColor =
+      dressColors[
+        index % dressColors.length
+      ];
+
+    const accentColors = [
+      "#E8A317",
+      "#F4E8D0",
+      "#E6007E",
+    ];
+
+    accentColor =
+      accentColors[
+        index % accentColors.length
+      ];
+  }
 
   // =========================================
   // HEAD
@@ -285,9 +476,16 @@ function drawDancer(ctx, x, y, angle, theme, isMobile) {
 
   ctx.beginPath();
 
-  ctx.arc(0, -17, 5, 0, Math.PI * 2);
+  ctx.arc(
+    0,
+    -17,
+    5,
+    0,
+    Math.PI * 2
+  );
 
-  ctx.fillStyle = theme.dancer;
+  ctx.fillStyle =
+    theme.dancer;
 
   ctx.fill();
 
@@ -305,7 +503,8 @@ function drawDancer(ctx, x, y, angle, theme, isMobile) {
 
   ctx.closePath();
 
-  ctx.fillStyle = theme.secondary;
+  ctx.fillStyle =
+    dressColor;
 
   ctx.fill();
 
@@ -319,7 +518,8 @@ function drawDancer(ctx, x, y, angle, theme, isMobile) {
 
   ctx.lineTo(8, 7);
 
-  ctx.strokeStyle = theme.dancerAccent;
+  ctx.strokeStyle =
+    accentColor;
 
   ctx.lineWidth = 2;
 
@@ -341,7 +541,8 @@ function drawDancer(ctx, x, y, angle, theme, isMobile) {
 
   ctx.lineTo(17, -12);
 
-  ctx.strokeStyle = theme.dancer;
+  ctx.strokeStyle =
+    theme.dancer;
 
   ctx.lineWidth = 2;
 
@@ -354,12 +555,21 @@ function drawDancer(ctx, x, y, angle, theme, isMobile) {
 // LAMP
 // =============================================
 
-function drawLamp(ctx, x, y, theme, isMobile) {
+function drawLamp(
+  ctx,
+  x,
+  y,
+  theme,
+  isMobile,
+  activeCategory
+) {
   // =========================================
   // RESPONSIVE SCALE
   // =========================================
 
-  const scale = isMobile ? 0.82 : 1;
+  const scale = isMobile
+    ? 0.82
+    : 1;
 
   ctx.save();
 
@@ -371,17 +581,38 @@ function drawLamp(ctx, x, y, theme, isMobile) {
   // GLOW
   // =========================================
 
-  const gradient = ctx.createRadialGradient(0, -15, 2, 0, -15, 55);
+  const gradient =
+    ctx.createRadialGradient(
+      0,
+      -15,
+      2,
+      0,
+      -15,
+      55
+    );
 
-  gradient.addColorStop(0, theme.glow);
+  gradient.addColorStop(
+    0,
+    theme.glow
+  );
 
-  gradient.addColorStop(1, "rgba(0,0,0,0)");
+  gradient.addColorStop(
+    1,
+    "rgba(0,0,0,0)"
+  );
 
-  ctx.fillStyle = gradient;
+  ctx.fillStyle =
+    gradient;
 
   ctx.beginPath();
 
-  ctx.arc(0, -15, 55, 0, Math.PI * 2);
+  ctx.arc(
+    0,
+    -15,
+    55,
+    0,
+    Math.PI * 2
+  );
 
   ctx.fill();
 
@@ -391,9 +622,18 @@ function drawLamp(ctx, x, y, theme, isMobile) {
 
   ctx.beginPath();
 
-  ctx.ellipse(0, 8, 22, 15, 0, 0, Math.PI * 2);
+  ctx.ellipse(
+    0,
+    8,
+    22,
+    15,
+    0,
+    0,
+    Math.PI * 2
+  );
 
-  ctx.fillStyle = theme.secondary;
+  ctx.fillStyle =
+    theme.secondary;
 
   ctx.fill();
 
@@ -402,17 +642,47 @@ function drawLamp(ctx, x, y, theme, isMobile) {
   // =========================================
 
   for (let i = 0; i < 7; i++) {
-    const angle = (Math.PI * 2 * i) / 7;
+    const angle =
+      (Math.PI * 2 * i) / 7;
 
-    const dotX = Math.cos(angle) * 13;
+    const dotX =
+      Math.cos(angle) * 13;
 
-    const dotY = 8 + Math.sin(angle) * 8;
+    const dotY =
+      8 +
+      Math.sin(angle) * 8;
 
     ctx.beginPath();
 
-    ctx.arc(dotX, dotY, 2, 0, Math.PI * 2);
+    ctx.arc(
+      dotX,
+      dotY,
+      2,
+      0,
+      Math.PI * 2
+    );
 
-    ctx.fillStyle = theme.primary;
+    // Kathiyawadi lamp gets
+    // alternating folk colors
+    if (
+      activeCategory ===
+      "kathiyawadi-raas"
+    ) {
+      const lampColors = [
+        "#E6007E",
+        "#E8A317",
+        "#008C95",
+        "#F4E8D0",
+      ];
+
+      ctx.fillStyle =
+        lampColors[
+          i % lampColors.length
+        ];
+    } else {
+      ctx.fillStyle =
+        theme.primary;
+    }
 
     ctx.fill();
   }
@@ -423,13 +693,27 @@ function drawLamp(ctx, x, y, theme, isMobile) {
 
   ctx.beginPath();
 
-  ctx.moveTo(0, -25);
+  ctx.moveTo(
+    0,
+    -25
+  );
 
-  ctx.quadraticCurveTo(-10, -8, 0, 2);
+  ctx.quadraticCurveTo(
+    -10,
+    -8,
+    0,
+    2
+  );
 
-  ctx.quadraticCurveTo(10, -8, 0, -25);
+  ctx.quadraticCurveTo(
+    10,
+    -8,
+    0,
+    -25
+  );
 
-  ctx.fillStyle = theme.lamp;
+  ctx.fillStyle =
+    theme.lamp;
 
   ctx.fill();
 
@@ -437,3 +721,4 @@ function drawLamp(ctx, x, y, theme, isMobile) {
 }
 
 export default FloorCanvas;
+
