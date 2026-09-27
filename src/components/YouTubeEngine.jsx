@@ -20,6 +20,7 @@ const YouTubeEngine = forwardRef(function YouTubeEngine(
 
   const durationRef = useRef(0);
   const endedRef = useRef(false);
+  const playRetryRef = useRef(null);
 
   // =========================================
   // RESET WHEN SONG CHANGES
@@ -28,6 +29,19 @@ const YouTubeEngine = forwardRef(function YouTubeEngine(
   useEffect(() => {
     durationRef.current = 0;
     endedRef.current = false;
+
+    // Clear previous retry timer
+    if (playRetryRef.current) {
+      clearInterval(playRetryRef.current);
+      playRetryRef.current = null;
+    }
+
+    return () => {
+      if (playRetryRef.current) {
+        clearInterval(playRetryRef.current);
+        playRetryRef.current = null;
+      }
+    };
   }, [currentSong?.youtubeId]);
 
   // =========================================
@@ -47,8 +61,6 @@ const YouTubeEngine = forwardRef(function YouTubeEngine(
         return;
       }
 
-      console.log("Seeking to:", seconds);
-
       try {
         player.currentTime = seconds;
       } catch (error) {
@@ -56,6 +68,31 @@ const YouTubeEngine = forwardRef(function YouTubeEngine(
       }
     },
   }));
+
+  // =========================================
+  // TRY PLAY
+  // =========================================
+
+  const tryPlay = () => {
+    const player = playerRef.current;
+
+    if (!player || !isPlaying) {
+      return;
+    }
+
+    try {
+      const result = player.play();
+
+      if (result?.catch) {
+        result.catch(() => {
+          // Browser may temporarily reject playback.
+          // Retry from handleReady.
+        });
+      }
+    } catch (error) {
+      console.log("Play request failed:", error);
+    }
+  };
 
   // =========================================
   // PLAYER READY
@@ -67,30 +104,61 @@ const YouTubeEngine = forwardRef(function YouTubeEngine(
       currentSong?.title
     );
 
-    /*
-     * If the user pressed Next/Previous while
-     * music was already playing, ask the new
-     * source to start playing.
-     */
-    if (isPlaying && playerRef.current) {
-      try {
-        const result = playerRef.current.play();
-
-        if (result?.catch) {
-          result.catch((error) => {
-            console.log(
-              "Mobile autoplay prevented:",
-              error
-            );
-          });
-        }
-      } catch (error) {
-        console.log(
-          "Playback request failed:",
-          error
-        );
-      }
+    if (!isPlaying) {
+      return;
     }
+
+    // Try immediately
+    tryPlay();
+
+    // =======================================
+    // MOBILE FALLBACK
+    // =======================================
+    //
+    // Some mobile browsers need a little time
+    // after a YouTube source changes.
+    //
+
+    let attempts = 0;
+
+    playRetryRef.current = setInterval(() => {
+      attempts++;
+
+      if (!isPlaying || attempts > 10) {
+        clearInterval(playRetryRef.current);
+        playRetryRef.current = null;
+        return;
+      }
+
+      tryPlay();
+    }, 300);
+  };
+
+  // =========================================
+  // PLAY EVENT
+  // =========================================
+
+  const handlePlay = () => {
+    console.log(
+      "Playing:",
+      currentSong?.title
+    );
+
+    if (playRetryRef.current) {
+      clearInterval(playRetryRef.current);
+      playRetryRef.current = null;
+    }
+  };
+
+  // =========================================
+  // PAUSE EVENT
+  // =========================================
+
+  const handlePause = () => {
+    console.log(
+      "Paused:",
+      currentSong?.title
+    );
   };
 
   // =========================================
@@ -104,7 +172,6 @@ const YouTubeEngine = forwardRef(function YouTubeEngine(
     const duration =
       durationRef.current;
 
-    // Keep App.jsx timeline working
     if (onTimeUpdate) {
       onTimeUpdate(event);
     }
@@ -122,7 +189,7 @@ const YouTubeEngine = forwardRef(function YouTubeEngine(
       endedRef.current = true;
 
       console.log(
-        "Song finished - moving to next"
+        "Song finished - next song"
       );
 
       onEnded?.();
@@ -150,7 +217,7 @@ const YouTubeEngine = forwardRef(function YouTubeEngine(
   };
 
   // =========================================
-  // NORMAL ENDED EVENT
+  // ENDED
   // =========================================
 
   const handleEnded = () => {
@@ -209,6 +276,8 @@ const YouTubeEngine = forwardRef(function YouTubeEngine(
         playsInline
 
         onReady={handleReady}
+        onPlay={handlePlay}
+        onPause={handlePause}
         onEnded={handleEnded}
         onTimeUpdate={handleTimeUpdate}
         onDurationChange={handleDurationChange}
