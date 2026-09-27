@@ -52,13 +52,30 @@ function App() {
       return;
     }
 
+    console.log(
+      "NEXT:",
+      currentSong?.title
+    );
+
     setCurrentTime(0);
     setDuration(0);
 
-    setCurrentSongIndex(
-      (currentSongIndex + 1) %
-        filteredPlaylist.length
-    );
+    setCurrentSongIndex((prevIndex) => {
+      const nextIndex =
+        (prevIndex + 1) %
+        filteredPlaylist.length;
+
+      console.log(
+        "Next index:",
+        nextIndex
+      );
+
+      return nextIndex;
+    });
+
+    // IMPORTANT:
+    // Keep player in playing state
+    setIsPlaying(true);
   };
 
   // =========================================
@@ -70,15 +87,32 @@ function App() {
       return;
     }
 
+    console.log(
+      "PREVIOUS:",
+      currentSong?.title
+    );
+
     setCurrentTime(0);
     setDuration(0);
 
-    setCurrentSongIndex(
-      (currentSongIndex -
-        1 +
-        filteredPlaylist.length) %
-        filteredPlaylist.length
-    );
+    setCurrentSongIndex((prevIndex) => {
+      const previousIndex =
+        (prevIndex -
+          1 +
+          filteredPlaylist.length) %
+        filteredPlaylist.length;
+
+      console.log(
+        "Previous index:",
+        previousIndex
+      );
+
+      return previousIndex;
+    });
+
+    // IMPORTANT:
+    // Keep player in playing state
+    setIsPlaying(true);
   };
 
   // =========================================
@@ -88,6 +122,11 @@ function App() {
   const handleCategoryChange = (
     category
   ) => {
+    console.log(
+      "CATEGORY:",
+      category
+    );
+
     setActiveCategory(category);
 
     setCurrentSongIndex(0);
@@ -96,7 +135,8 @@ function App() {
 
     setDuration(0);
 
-    setIsPlaying(false);
+    // Start first song
+    setIsPlaying(true);
   };
 
   // =========================================
@@ -135,7 +175,7 @@ function App() {
   };
 
   // =========================================
-  // SELECT SONG FROM PLAYLIST POPUP
+  // SELECT SONG FROM PLAYLIST
   // =========================================
 
   const handleSelectSong = (
@@ -145,7 +185,12 @@ function App() {
       return;
     }
 
-    // Find all songs in selected category
+    console.log(
+      "SELECT SONG:",
+      selectedSong.title
+    );
+
+    // Find songs from selected category
 
     const selectedCategorySongs =
       playlistData.filter(
@@ -154,7 +199,7 @@ function App() {
           selectedSong.category
       );
 
-    // Find selected song index
+    // Find selected song
 
     const selectedIndex =
       selectedCategorySongs.findIndex(
@@ -196,13 +241,9 @@ function App() {
 
   const handleFullscreen = async () => {
     try {
-      // Enter fullscreen
       if (!document.fullscreenElement) {
         await document.documentElement.requestFullscreen();
-      }
-
-      // Exit fullscreen
-      else {
+      } else {
         await document.exitFullscreen();
       }
     } catch (error) {
@@ -225,21 +266,45 @@ function App() {
       ===================================== */}
 
       <YouTubeEngine
+        /*
+         * IMPORTANT:
+         *
+         * Force a completely fresh ReactPlayer
+         * whenever YouTube video changes.
+         *
+         * This helps especially on mobile browsers
+         * when changing from one YouTube video
+         * directly to another.
+         */
+        key={currentSong?.youtubeId || "no-song"}
+
         ref={youtubeRef}
+
         currentSong={currentSong}
+
         isPlaying={isPlaying}
+
         onEnded={handleNext}
 
         onTimeUpdate={(event) => {
-          setCurrentTime(
-            event.currentTarget.currentTime
-          );
+          const time =
+            event.currentTarget.currentTime;
+
+          if (Number.isFinite(time)) {
+            setCurrentTime(time);
+          }
         }}
 
         onDurationChange={(event) => {
-          setDuration(
-            event.currentTarget.duration
-          );
+          const newDuration =
+            event.currentTarget.duration;
+
+          if (
+            Number.isFinite(newDuration) &&
+            newDuration > 0
+          ) {
+            setDuration(newDuration);
+          }
         }}
       />
 
@@ -279,17 +344,23 @@ function App() {
         isPlaying={isPlaying}
         currentTime={currentTime}
         duration={duration}
+
         onPlayPause={() =>
           setIsPlaying(
             (value) => !value
           )
         }
+
         onNext={handleNext}
+
         onPrevious={handlePrevious}
+
         onSeek={handleSeek}
+
         onSelectSong={
           handleSelectSong
         }
+
         onFullscreen={
           handleFullscreen
         }

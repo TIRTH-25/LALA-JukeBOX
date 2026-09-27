@@ -20,7 +20,18 @@ const YouTubeEngine = forwardRef(function YouTubeEngine(
 
   const durationRef = useRef(0);
   const endedRef = useRef(false);
-  const playRetryRef = useRef(null);
+  const retryTimerRef = useRef(null);
+
+  // =========================================
+  // CLEAR RETRY TIMER
+  // =========================================
+
+  const clearRetryTimer = () => {
+    if (retryTimerRef.current) {
+      clearInterval(retryTimerRef.current);
+      retryTimerRef.current = null;
+    }
+  };
 
   // =========================================
   // RESET WHEN SONG CHANGES
@@ -30,17 +41,10 @@ const YouTubeEngine = forwardRef(function YouTubeEngine(
     durationRef.current = 0;
     endedRef.current = false;
 
-    // Clear previous retry timer
-    if (playRetryRef.current) {
-      clearInterval(playRetryRef.current);
-      playRetryRef.current = null;
-    }
+    clearRetryTimer();
 
     return () => {
-      if (playRetryRef.current) {
-        clearInterval(playRetryRef.current);
-        playRetryRef.current = null;
-      }
+      clearRetryTimer();
     };
   }, [currentSong?.youtubeId]);
 
@@ -63,8 +67,16 @@ const YouTubeEngine = forwardRef(function YouTubeEngine(
 
       try {
         player.currentTime = seconds;
+
+        console.log(
+          "Seeking to:",
+          seconds
+        );
       } catch (error) {
-        console.error("Seek failed:", error);
+        console.error(
+          "Seek failed:",
+          error
+        );
       }
     },
   }));
@@ -74,23 +86,36 @@ const YouTubeEngine = forwardRef(function YouTubeEngine(
   // =========================================
 
   const tryPlay = () => {
+    if (!isPlaying) {
+      return;
+    }
+
     const player = playerRef.current;
 
-    if (!player || !isPlaying) {
+    if (!player) {
       return;
     }
 
     try {
-      const result = player.play();
+      // ReactPlayer v3 exposes the underlying
+      // media interface through the ref.
 
-      if (result?.catch) {
-        result.catch(() => {
-          // Browser may temporarily reject playback.
-          // Retry from handleReady.
-        });
+      if (typeof player.play === "function") {
+        const result = player.play();
+
+        if (result?.catch) {
+          result.catch(() => {
+            console.log(
+              "Playback waiting for browser/player"
+            );
+          });
+        }
       }
     } catch (error) {
-      console.log("Play request failed:", error);
+      console.log(
+        "Play request failed:",
+        error
+      );
     }
   };
 
@@ -104,38 +129,38 @@ const YouTubeEngine = forwardRef(function YouTubeEngine(
       currentSong?.title
     );
 
+    clearRetryTimer();
+
     if (!isPlaying) {
       return;
     }
 
-    // Try immediately
+    // First attempt
     tryPlay();
 
     // =======================================
-    // MOBILE FALLBACK
+    // MOBILE RETRY
     // =======================================
-    //
-    // Some mobile browsers need a little time
-    // after a YouTube source changes.
-    //
 
     let attempts = 0;
 
-    playRetryRef.current = setInterval(() => {
+    retryTimerRef.current = setInterval(() => {
       attempts++;
 
-      if (!isPlaying || attempts > 10) {
-        clearInterval(playRetryRef.current);
-        playRetryRef.current = null;
+      if (!isPlaying || attempts >= 12) {
+        clearRetryTimer();
         return;
       }
 
-      tryPlay();
-    }, 300);
+      // If already playing, stop retrying.
+      if (playerRef.current) {
+        tryPlay();
+      }
+    }, 400);
   };
 
   // =========================================
-  // PLAY EVENT
+  // PLAY
   // =========================================
 
   const handlePlay = () => {
@@ -144,14 +169,11 @@ const YouTubeEngine = forwardRef(function YouTubeEngine(
       currentSong?.title
     );
 
-    if (playRetryRef.current) {
-      clearInterval(playRetryRef.current);
-      playRetryRef.current = null;
-    }
+    clearRetryTimer();
   };
 
   // =========================================
-  // PAUSE EVENT
+  // PAUSE
   // =========================================
 
   const handlePause = () => {
@@ -262,6 +284,7 @@ const YouTubeEngine = forwardRef(function YouTubeEngine(
     >
       <ReactPlayer
         ref={playerRef}
+
         src={`https://www.youtube.com/watch?v=${currentSong.youtubeId}`}
 
         playing={isPlaying}
@@ -279,6 +302,7 @@ const YouTubeEngine = forwardRef(function YouTubeEngine(
         onPlay={handlePlay}
         onPause={handlePause}
         onEnded={handleEnded}
+
         onTimeUpdate={handleTimeUpdate}
         onDurationChange={handleDurationChange}
       />
@@ -287,3 +311,4 @@ const YouTubeEngine = forwardRef(function YouTubeEngine(
 });
 
 export default YouTubeEngine;
+
